@@ -161,9 +161,10 @@ class TargetProcess
 
 
 /**
+ * @param string $tag
  * @param string[][] $realTickets
  */
-function _addTagsToTargetProcessTickets($realTickets)
+function _addTagsToTargetProcessTickets($realTickets, $tag = null)
 {
     $targetProcess = new TargetProcess();
 
@@ -171,11 +172,9 @@ function _addTagsToTargetProcessTickets($realTickets)
 
         echo $realTicket[2] . ' - ' . $realTicket[0] . ' - ' . $realTicket[1] . "\n";
 
-        if (!isset($argv[3]) || !is_string($argv[3])) {
+        if (!isset($tag) || !is_string($tag)) {
             continue;
         }
-
-        $tag = $argv[3];
 
         switch ($realTicket[2]) {
             case TargetProcess::STORY:
@@ -249,5 +248,7 @@ if (!isset($argv[1]) || !isset($argv[2])) {
     die;
 }
 
+$tag = isset($argv[3]) ? $argv[3] : null;
+
 $realTickets = _getGitCommitMessagesAndCheckForStories($argv[1], $argv[2]);
-_addTagsToTargetProcessTickets($realTickets);
+_addTagsToTargetProcessTickets($realTickets, $tag);
