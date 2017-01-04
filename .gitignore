@@ -1,0 +1,6 @@
+composer.lock
+git.log
+.git
+.idea/
+vendor/
+tools/

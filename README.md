@@ -16,15 +16,33 @@ A tool to collect the git commit messages from a git repo and add based on the g
 * git console tool
 
 ### Setup
-Setup the url, username and pw within the git-tp.php file.
+Setup the url, username, pw and sender address within the config.php file.
 ```
-    var $_targetProcessUrl = '';
-    var $_username = '';
-    var $_password = '';
+$configuration = [
+    'targetprocess_url' => '',
+    'targetprocess_username' => '',
+    'targetprocess_password' => '',
+    'aws_ses_sender_address' => '',
+    'logo_url' => ''
+];
 ```
 
-### How to use
+### How to install / prepare
 * Go to git main directory
 * run `git pull` to have update the local git repo
-* run `php git-tp.php <git-commit-hash-from> <git-commit-hash-to>` to show the Stories and Bugs related to the commit messages
-* run `php git-tp.php <git-commit-hash-from> <git-commit-hash-to> <tag-to-add>` to show the Stories and Bugs related to the commit messages and also add a tag to all of those stories
+* run `./composer.phar install` to install the aws sdk
+
+### How to use
+All those should be run in the folder in which the git is located based on which you want to create a changelog
+
+Full Command: `php git-tp.php <git-commit-hash-from> <git-commit-hash-to> <tag-to-add> <do-tag-adding> <email-address>` 
+
+* Just output:
+    * run `php git-tp.php <git-commit-hash-from> <git-commit-hash-to>`
+* Output and add Tags to Targetprocess: 
+    * run `php git-tp.php <git-commit-hash-from> <git-commit-hash-to> <tag-to-add> <do-tag-adding>`
+* Output and send mail via AWS-SES (without adding tags to targetprocess)
+    * run `php git-tp.php <git-commit-hash-from> <git-commit-hash-to> <tag-to-add> 0 <email-address>` 
+* Output, add Tags to Targetprocess and send mail via AWS-SES
+    * run `php git-tp.php <git-commit-hash-from> <git-commit-hash-to> <tag-to-add> 1 <email-address>` 
+

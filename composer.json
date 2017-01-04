@@ -1,0 +1,10 @@
+{
+  "name": "aoe/tp-helper",
+  "minimum-stability": "dev",
+  "require": {
+    "aws/aws-sdk-php": "*"
+  },
+  "config": {
+    "bin-dir": "tools"
+  }
+}
