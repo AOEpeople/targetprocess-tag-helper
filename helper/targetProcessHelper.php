@@ -224,7 +224,7 @@ class TargetProcessHelper
      */
     function _getGitCommitMessagesAndCheckForStories($start, $end)
     {
-        shell_exec('git log --pretty=oneline --git-dir=/var/lib/jenkins/jobs/build/workspace ' . $start . '...' . $end . ' > git.log');
+        shell_exec('git -C /var/lib/jenkins/jobs/build/workspace/ log --pretty=oneline ' . $start . '...' . $end . ' > git.log');
         $myfile = fopen("git.log", "r");
 
         $realTickets = [];
