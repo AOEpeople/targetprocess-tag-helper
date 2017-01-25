@@ -12,6 +12,13 @@ class EmailHelper
     /** @var string */
     var $_logo = '';
 
+    /** @var string  */
+    var $_textHeader = '';
+
+    /**
+     * EmailHelper constructor.
+     * @param array $configuration
+     */
     public function __construct($configuration = [])
     {
         $this->_sesMailer = SesClient::factory([
@@ -20,6 +27,7 @@ class EmailHelper
         ]);
         $this->_sender = $configuration['aws_ses_sender_address'];
         $this->_logo = $configuration['logo_url'];
+        $this->_textHeader = $configuration['mail_header'];
     }
 
 
@@ -39,10 +47,8 @@ class EmailHelper
         }
 
 
-        $mailText = "Hello,
-Here the new changelog for the completed deployment on the {$tag}-Environment.
-If you find issues please create a new Bug or ping us in #ecom-testing channel.
-
+        $mailText = $this->_textHeader. "
+        
 <h1>Changelog for {$tag}</h1>";
 
         $mailText = str_replace("\n", "<br>", $mailText);

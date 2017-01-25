@@ -23,7 +23,10 @@ $configuration = [
     'targetprocess_username' => '',
     'targetprocess_password' => '',
     'aws_ses_sender_address' => '',
-    'logo_url' => ''
+    'logo_url' => '',
+    'mail_header' => 'Hello,
+    Here the new changelog for the completed deployment.
+    If you find issues please create a new Bug or ping us in channel.'
 ];
 ```
 
@@ -37,12 +40,13 @@ All those should be run in the folder in which the git is located based on which
 
 Full Command: `php git-tp.php <git-commit-hash-from> <git-commit-hash-to> <tag-to-add> <do-tag-adding> <email-address>` 
 
+* Get start hash:
+    * run `php git-tp.php getStartHash <version.txt url>
+* Get end hash:
+    * run `php git-tp.php getEndHash <version.txt url>
 * Just output:
-    * run `php git-tp.php <git-commit-hash-from> <git-commit-hash-to>`
-* Output and add Tags to Targetprocess: 
-    * run `php git-tp.php <git-commit-hash-from> <git-commit-hash-to> <tag-to-add> <do-tag-adding>`
-* Output and send mail via AWS-SES (without adding tags to targetprocess)
-    * run `php git-tp.php <git-commit-hash-from> <git-commit-hash-to> <tag-to-add> 0 <email-address>` 
-* Output, add Tags to Targetprocess and send mail via AWS-SES
-    * run `php git-tp.php <git-commit-hash-from> <git-commit-hash-to> <tag-to-add> 1 <email-address>` 
-
+    * run `php git-tp.php addTpTag
+* Output and add Tag:
+    * run `php git-tp.php addTpTag <add-tag>
+* Output and send mail via AWS-SES:
+    * run `php git-tp.php sendChangelog <add-tag> <email-adresses>
