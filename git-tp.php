@@ -38,13 +38,6 @@ if (isset($argv[1])) {
             shell_exec('git -C ' . $argv[1] . ' log --pretty=oneline ' . $argv[2] . '...' . $argv[3] . ' > git.log');
             break;
         case 'addTpTag':
-            $startHash = file_get_contents('startHash.txt');
-            $endHash = file_get_contents('endHash.txt');
-            if (!$startHash || !$endHash) {
-                echo "Git commit hashes missing";
-                die;
-            }
-
             $tag = isset($argv[2]) ? $argv[2] : null;
             $addTicket = true;
 
@@ -52,13 +45,6 @@ if (isset($argv[1])) {
             print_r($tickets);
             break;
         case 'sendChangelog':
-            $startHash = file_get_contents('startHash.txt');
-            $endHash = file_get_contents('endHash.txt');
-            if (!$startHash || !$endHash) {
-                echo "Git commit hashes missing";
-                die;
-            }
-
             $tag = isset($argv[2]) ? $argv[2] : null;
             $addTicket = false;
             $sendMail = isset($argv[3]) ? $argv[3] : false;
