@@ -44,6 +44,8 @@ Full Command: `php git-tp.php <git-commit-hash-from> <git-commit-hash-to> <tag-t
     * run `php git-tp.php getStartHash <version.txt url>
 * Get end hash:
     * run `php git-tp.php getEndHash <version.txt url>
+* To create a git log:
+    * run `php git-tp.php createGitLog <git-folder>
 * Just output:
     * run `php git-tp.php addTpTag
 * Output and add Tag:

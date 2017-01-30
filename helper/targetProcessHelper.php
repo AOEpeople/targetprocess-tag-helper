@@ -167,15 +167,13 @@ class TargetProcessHelper
 
 
     /**
-     * @param string $startHash
-     * @param string $endHash
      * @param boolean $addTicket
      * @param string $tag
      * @return string[][]
      */
-    function _addTagsToTargetProcessTickets($startHash, $endHash, $addTicket, $tag = null)
+    public function addTagsToTargetProcessTickets($addTicket, $tag = null)
     {
-        $realTickets = $this->_getGitCommitMessagesAndCheckForStories($startHash, $endHash);
+        $realTickets = $this->_checkForStoriesInGitLogFile();
         $stories = [];
         $bugs = [];
         $tags = [];
@@ -217,14 +215,10 @@ class TargetProcessHelper
     }
 
     /**
-     * @param string $start
-     * @param string $end
-     *
      * @return array
      */
-    function _getGitCommitMessagesAndCheckForStories($start, $end)
+    function _checkForStoriesInGitLogFile()
     {
-        shell_exec('git -C /var/lib/jenkins/jobs/build/workspace/ log --pretty=oneline ' . $start . '...' . $end . ' > git.log');
         $myfile = fopen("git.log", "r");
 
         $realTickets = [];
