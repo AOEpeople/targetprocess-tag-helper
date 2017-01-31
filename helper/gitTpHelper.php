@@ -10,7 +10,7 @@ class GitTpHelper
         }
     }
 
-    public function run()
+    public function run($argv)
     {
         if (isset($argv[1])) {
             $hashHelper = new HashHelper();
