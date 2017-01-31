@@ -26,8 +26,3 @@ USAGE;
 }
 
 new GitTpHelper($configuration);
-
-
-
-
-
