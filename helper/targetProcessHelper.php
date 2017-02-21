@@ -225,12 +225,9 @@ class TargetProcessHelper
 
         while (!feof($myfile)) {
             $line = fgets($myfile);
-            $lineArray = explode(' ', $line);
-            if (count($lineArray) < 2) {
-                continue;
-            }
-
-            $numbering = explode(':', $lineArray[1])[0];
+            $matches = array();
+            preg_match("/(feature\/|#)(\d*)(_| ).*$/", $line, $matches);
+            $numbering = $matches[2];
 
             if (!is_numeric($numbering)) {
                 continue;

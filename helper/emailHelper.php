@@ -21,13 +21,6 @@ class EmailHelper
      */
     public function __construct($configuration = [])
     {
-        $this->_sesMailer = SesClient::factory([
-            'version'=> 'latest',
-            'region' => 'eu-west-1'
-        ]);
-        $this->_sender = $configuration['aws_ses_sender_address'];
-        $this->_logo = $configuration['logo_url'];
-        $this->_textHeader = $configuration['mail_header'];
     }
 
 
@@ -64,14 +57,10 @@ class EmailHelper
             "<h2>Stories</h2>".
             "<ul>" . $userStoryContent . "</ul>".
             "<h2>Bugs</h2>".
-            "<ul>" . $bugContent .  "</ul>".
-        "<br><img src=\"{$logo}\" width=\"246\" height=\"55\">";
+            "<ul>" . $bugContent .  "</ul>";
 
         try {
-            $result = $this->_sesMailer->sendEmail($request);
-            $messageId = $result->get('MessageId');
-            echo("Email sent! Message ID: $messageId"."\n");
-
+            file_put_contents($receiver, $request['Message']['Body']['Html']['Data']);
         } catch (Exception $e) {
             echo("The email was not sent. Error message: ");
             echo($e->getMessage()."\n");
