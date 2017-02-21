@@ -41,14 +41,14 @@ All those should be run in the folder in which the git is located based on which
 Full Command: `php git-tp.php <git-commit-hash-from> <git-commit-hash-to> <tag-to-add> <do-tag-adding> <email-address>` 
 
 * Get start hash:
-    * run `php git-tp.php getStartHash <version.txt url>
+    * run `php git-tp.php getStartHash <version.txt url>`
 * Get end hash:
-    * run `php git-tp.php getEndHash <version.txt url>
+    * run `php git-tp.php getEndHash <version.txt url>`
 * To create a git log:
-    * run `php git-tp.php createGitLog <git-folder>
+    * run `php git-tp.php createGitLog <git-folder>`
 * Just output:
-    * run `php git-tp.php addTpTag
+    * run `php git-tp.php addTpTag`
 * Output and add Tag:
-    * run `php git-tp.php addTpTag <add-tag>
+    * run `php git-tp.php addTpTag <add-tag>`
 * Output and send mail via AWS-SES:
-    * run `php git-tp.php sendChangelog <add-tag> <email-adresses>
+    * run `php git-tp.php sendChangelog <add-tag> <email-adresses>`

@@ -25,7 +25,7 @@ class GitTpHelper
                     $hashHelper->getEndHash($argv[2]);
                     break;
                 case 'createGitLog':
-                    shell_exec('git -C ' . $argv[1] . ' log --pretty=oneline ' . $argv[2] . '...' . $argv[3] . ' > git.log');
+                    shell_exec('git -C ' . $argv[2] . ' log --pretty=oneline ' . file_get_contents('startHash.txt') . '...' . file_get_contents('endHash.txt') . ' > git.log');
                     break;
                 case 'addTpTag':
                     $tag = isset($argv[2]) ? $argv[2] : null;
