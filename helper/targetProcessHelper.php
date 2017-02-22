@@ -143,6 +143,9 @@ class TargetProcessHelper
                 return [$ticketId, $bugInfo['Name'], self::BUG];
             } else {
                 $userStoryInfo = $this->_getStoryInfo($bugInfo['UserStory']['Id']);
+                if ((strpos($userStoryInfo['Name'], 'Buglane') !== false)){
+                    return [$ticketId, $bugInfo['Name'], self::BUG];
+                }
                 return [$bugInfo['UserStory']['Id'], $userStoryInfo['Name'], self::STORY];
             }
         }
@@ -151,7 +154,10 @@ class TargetProcessHelper
         if ($taskInfo) {
             if (isset($taskInfo['UserStory']['Id'])) {
                 $userStoryInfo = $this->_getStoryInfo($taskInfo['UserStory']['Id']);
-
+                if ((strpos($userStoryInfo['Name'], 'Buglane') !== false)){
+                    // treet task in Buglane as Bugs
+                    return [$ticketId, $taskInfo['Name'], self::BUG];
+                }
                 if (isset($taskInfo['UserStory']['Id'])) {
                     return [$taskInfo['UserStory']['Id'], $userStoryInfo['Name'], self::STORY];
                 }
