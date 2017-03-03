@@ -3,21 +3,25 @@
 
 class ReviewHelper
 {
-    var $teamId;
     var $_skipUsers;
     var $_effort = 0;
     var $configuration;
-    var $tph;
 
+    /**
+     * ReviewHelper constructor.
+     * @param string[] $configuration
+     */
     public function __construct($configuration)
     {
-        $this->tph = new TargetProcessHelper($configuration);
         $this->configuration = $configuration;
         $this->_skipUsers = $configuration['skipUser'];
-        $this->teamId = $_GET['teamid'];
-        $this->printOut($this->teamId);
     }
 
+    /**
+     * @param $userStory
+     * @param string[] $skipUsers
+     * @return string
+     */
     protected function getAssignedUsers($userStory, $skipUsers)
     {
         $assignedUsers = [];
@@ -29,9 +33,13 @@ class ReviewHelper
             }
             $assignedUsers[] = $name;
         }
-        return implode('<br>', $assignedUsers);
+        return implode(', ', $assignedUsers);
     }
 
+    /**
+     * @param string $entityName
+     * @return string
+     */
     protected function getStatusMarkup($entityName)
     {
         switch ($entityName) {
@@ -65,6 +73,10 @@ class ReviewHelper
         return "{status:colour={$color}|title={$title}|subtle=false}";
     }
 
+    /**
+     * @param string $entityName
+     * @return string
+     */
     protected function getColor($entityName)
     {
         switch ($entityName) {
@@ -79,71 +91,35 @@ class ReviewHelper
         }
     }
 
-    protected function printTableRow($array, $topicRow = false)
+
+    //formats rows into a confluence table
+    /**
+     * @param $array
+     * @param bool $topicRow
+     * @return string
+     */
+    public function formatTableRow($array, $topicRow = false)
     {
         if ($topicRow)
-            return $tableRow = '|| {color:#CD6600} *' . implode('* {color} || {color:#CD6600} *', $array) . '* {color} ||<br>';
+            return $tableRow = '|| {color:#CD6600} *' . implode('* {color} || {color:#CD6600} *', $array) . '* {color} ||<br>
+            ';
         else
-            return $tableRow = '| ' . implode(' | ', $array) . ' |<br>';
+            return $tableRow = '| ' . implode(' | ', $array) . ' |<br>
+            ';
     }
 
-    protected function printOut($teamId)
-    {
-        $teamIterationCollection = $this->tph->getTeamIterationCollectionByTeamId($teamId);
-        for ($i = 0; $i < count($teamIterationCollection['Items']); $i++) {
-            $firstTeamIterationId = $teamIterationCollection['Items'][$i]['Id'];
-            echo "<h1>{$teamIterationCollection['Items'][$i]['Name']}</h1>";
-
-            $userStories = $this->tph->getUserStoriesForTeamIterationId($firstTeamIterationId);
-            $bugs = $this->tph->getBugsForTeamIterationId($firstTeamIterationId);
-
-            $sortByPriority = [];
-            $sortBugByPriority = [];
-
-            foreach ($userStories['Items'] as $userStory) {
-                $sortByPriority[$userStory['NumericPriority']][] = $userStory;
-            }
-
-            foreach ($bugs['Items'] as $bug) {
-                $sortBugByPriority[$bug['NumericPriority']][] = $bug;
-            }
-
-            ksort($sortByPriority);
-            ksort($sortBugByPriority);
-
-            $printArray = ["Link", "Title", "Status", "Effort", "Responsible", "Presentable", "Presentation Notes"];
-            echo $this->printTableRow($printArray, true);
-            $this->_effort = 0;
-            foreach ($sortByPriority as $userStories) {
-                foreach ($userStories as $userStory) {
-                    $userStory = $this->tph->getStoryInfo($userStory['Id']);
-                    $this->_generateOutputForEntity($userStory);
-                }
-            }
-            $printArray = ["", "{color:#CD6600} *BUGS* {color}", "", "", "", "", ""];
-            echo $this->printTableRow($printArray);
-
-            foreach ($sortBugByPriority as $bugs) {
-                foreach ($bugs as $bug) {
-                    $bug = $this->tph->getBugInfo($bug['Id']);
-
-                    if ($bug['UserStory'] != null) {
-                        continue;
-                    }
-                    $this->_generateOutputForEntity($bug);
-                }
-            }
-            $printArray = ["", "", "", "{$this->_effort}", "", "", ""];
-            echo $this->printTableRow($printArray) . "<hr/>";
-        }
-    }
-
+    //generates 1 array (row) each time
+    /**
+     * @param array $entity
+     * @return string
+     */
     protected function _generateOutputForEntity($entity)
     {
+        $content = "";
+
         $colorMarkUp = $this->getStatusMarkup($entity['EntityState']['Name']);
         $this->_effort += $entity['Effort'];
         $assignedUser = $this->getAssignedUsers($entity, $this->_skipUsers);
-
 
         $printArray = [
             "[#{$entity['Id']}|{$this->configuration['url']}{$entity['Id']}]",
@@ -154,7 +130,26 @@ class ReviewHelper
             "",
             ""
         ];
-        echo $this->printTableRow($printArray);
-        return array($colorMarkUp, $assignedUser, $printArray);
+        $content = $content . $this->formatTableRow($printArray);
+        return $content;
+    }
+
+    //puts all rows together
+    /**
+     * @param array $entities
+     * @return string
+     */
+    public function generateOutputForEntities(array $entities)
+    {
+        $this->_effort = 0;
+        $content = "";
+
+        $printArray = ["Link", "Title", "Status", "Effort", "Responsible", "Presentable", "Presentation Notes"];
+        $content = $content . $this->formatTableRow($printArray, true);
+
+        foreach ($entities as $entity) {
+            $content = $content . $this->_generateOutputForEntity($entity);
+        }
+        return $content;
     }
 }

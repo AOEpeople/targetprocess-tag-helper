@@ -1,6 +1,9 @@
 <?php
 class GitTpHelper
 {
+    /**
+     * @var array
+     */
     protected $_configuration = [];
 
     public function __construct($configuration = [])
@@ -10,6 +13,9 @@ class GitTpHelper
         }
     }
 
+    /**
+     * @param $argv
+     */
     public function run($argv)
     {
         if (isset($argv[1])) {

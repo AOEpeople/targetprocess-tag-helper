@@ -17,7 +17,7 @@ class EmailHelper
 
     /**
      * EmailHelper constructor.
-     * @param array $configuration
+     * @param string[] $configuration
      */
     public function __construct($configuration = [])
     {
@@ -30,7 +30,11 @@ class EmailHelper
         $this->_textHeader = $configuration['mail_header'];
     }
 
-
+    /**
+     * @param $receiver
+     * @param array $content
+     * @param $tag
+     */
     public function sendMail($receiver, $content, $tag)
     {
         $userStories = $content['stories'];
