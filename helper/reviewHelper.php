@@ -108,8 +108,8 @@ class ReviewHelper
             ';
     }
 
-    //generates 1 array (row) each time
     /**
+     * generates 1 array (row) each time
      * @param array $entity
      * @return string
      */
