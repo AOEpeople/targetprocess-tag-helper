@@ -1,7 +1,7 @@
 composer.lock
 git.log
 .git
-config.php
+/config.php
 .idea/
 vendor/
 tools/
