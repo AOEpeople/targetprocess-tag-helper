@@ -29,10 +29,10 @@ class TargetProcessHelper
 
     /**
      * @param $entityUrl
-     * @param null $data
+     * @param null|string[] $data
      * @return mixed
      */
-    public function curlRequest($entityUrl, $data = null)
+    protected function _curlRequest($entityUrl, $data = null)
     {
         $ch = curl_init();
 
@@ -74,43 +74,52 @@ class TargetProcessHelper
      */
     public function getTeamIterationCollectionByTeamId($teamId)
     {
-        return $this->curlRequest("Teams/{$teamId}/TeamIterations?include=[Name,Id,Velocity]");
+        $curlResponse = $this->_curlRequest("Teams/{$teamId}/TeamIterations?include=[Name,Id,Velocity]");
+        return $curlResponse['Items'] ?: [];
     }
 
     /**
-     * @param $teamIterationId
-     * @param $userStory
-     * @return string[]
+     * @param string[][] $teamIterations
+     * @param boolean $isUserStory
+     * @return array
      */
-    public function getInformationForTeamIterationId($teamIterationId, $userStory)
+    public function getInformationForTeamIterationId($teamIterations, $isUserStory)
     {
-
         $informationArray = [];
+        $informationSprint = [];
         $sortByPriority = [];
 
-        if ($userStory)
-            $information = $this->curlRequest("TeamIterations/{$teamIterationId}/UserStories/?skip=0&take=50&include=[Id,Name,Effort,EntityState,AssignedUser,Tasks,NumericPriority]");
-        else
-            $information = $this->curlRequest("TeamIterations/{$teamIterationId}/Bugs/?take=50");
+        foreach ($teamIterations as $sprint) {
 
-        foreach ($information['Items'] as $info) {
-            $sortByPriority[$info['NumericPriority']][] = $info;
-        }
+            $teamIterationId = $sprint['Id'];
 
-        ksort($sortByPriority);
+            if ($isUserStory)
+                $information = $this->_curlRequest("TeamIterations/{$teamIterationId}/UserStories/?skip=0&take=50&include=[Id,Name,Effort,EntityState,AssignedUser,Tasks,NumericPriority]");
+            else
+                $information = $this->_curlRequest("TeamIterations/{$teamIterationId}/Bugs/?take=50");
 
-        foreach ($sortByPriority as $information) {
-            foreach ($information as $info) {
-                if (!$userStory) {
-                    $info = $this->getBugInfo($info['Id']);
-                    if ($info['UserStory'] != null)
-                        continue;
-                } else
-                    $info = $this->getStoryInfo($info['Id']);
-                $informationArray[] = $info;
+            foreach ($information['Items'] as $info) {
+                $sortByPriority[$info['NumericPriority']][] = $info;
             }
-        }
 
+            ksort($sortByPriority);
+
+            foreach ($sortByPriority as $information) {
+                foreach ($information as $info) {
+                    if (!$isUserStory) {
+                        $info = $this->_getBugInfo($info['Id']);
+                        if ($info['UserStory'] != null)
+                            continue;
+                    } else
+                        $info = $this->_getStoryInfo($info['Id']);
+
+                    array_push($informationSprint, $info);
+                }
+            }
+            $data['Name'] = $sprint['Name'];
+            $data['Information'] = $informationSprint;
+            array_push($informationArray, $data);
+        }
         return $informationArray;
     }
 
@@ -118,27 +127,28 @@ class TargetProcessHelper
      * @param $bugId
      * @return mixed
      */
-    public function getBugInfo($bugId)
+    protected function _getBugInfo($bugId)
     {
-        return $this->curlRequest("Bugs/{$bugId}?include=[Id,AssignedUser,Name,EntityState,Effort,UserStory]");
+        return $this->_curlRequest("Bugs/{$bugId}?include=[Id,AssignedUser,Name,EntityState,Effort,UserStory]");
     }
 
     /**
+     * Receive story information from targetprocess and adds the provided tag.
      * @param $taskId
-     * @return mixed
+     * @return string[]
      */
     public function getTaskInfo($taskId)
     {
-        return $this->curlRequest("Tasks/{$taskId}?include=[AssignedUser,Name,EntityState,Effort]");
+        return $this->_curlRequest("Tasks/{$taskId}?include=[AssignedUser,Name,EntityState,Effort]");
     }
 
     /**
      * @param $storyId
      * @return mixed
      */
-    public function getStoryInfo($storyId)
+    protected function _getStoryInfo($storyId)
     {
-        return $this->curlRequest("UserStories/{$storyId}?include=[Id,AssignedUser,Name,EntityState,Effort]");
+        return $this->_curlRequest("UserStories/{$storyId}?include=[Id,AssignedUser,Name,EntityState,Effort]");
     }
 
     /**
@@ -147,34 +157,38 @@ class TargetProcessHelper
      */
     public function addTagToStory($storyId, $tag)
     {
-        $story = $this->curlRequest("UserStories/{$storyId}?include=[Name,Project,Tags]");
+        $story = $this->_curlRequest("UserStories/{$storyId}?include=[Name,Project,Tags]");
         $story['Tags'] = $story['Tags'] . "," . $tag;
-        $this->curlRequest("UserStories/{$storyId}?include=[Name,Project,Tags]", $story);
+        $this->_curlRequest("UserStories/{$storyId}?include=[Name,Project,Tags]", $story);
     }
 
     /**
+     * Receive bug information from targetprocess and adds the provided tag.
      * @param $bugId
      * @param $tag
      */
     public function addTagToBug($bugId, $tag)
     {
-        $bug = $this->curlRequest("Bugs/{$bugId}?include=[Name,Project,Tags]");
+        $bug = $this->_curlRequest("Bugs/{$bugId}?include=[Name,Project,Tags]");
         $bug['Tags'] = $bug['Tags'] . ",". $tag;
-        $this->curlRequest("Bugs/{$bugId}?include=[Name,Project,Tags]", $bug);
+        $this->_curlRequest("Bugs/{$bugId}?include=[Name,Project,Tags]", $bug);
     }
 
     /**
+     * Logic to check if a story exists for the provided ticket number.
+     * If story exists story is returned
+     * If no story exists bug is returned.
      * @param $ticketId
      * @return array
      */
     public function findUserStoryOrBugTitle($ticketId)
     {
-        $bugInfo = $this->getBugInfo($ticketId);
+        $bugInfo = $this->_getBugInfo($ticketId);
         if ($bugInfo && !isset($bugInfo['Status'])) {
             if (!isset($bugInfo['UserStory'])) {
                 return [$ticketId, $bugInfo['Name'], self::BUG];
             } else {
-                $userStoryInfo = $this->getStoryInfo($bugInfo['UserStory']['Id']);
+                $userStoryInfo = $this->_getStoryInfo($bugInfo['UserStory']['Id']);
                 return [$bugInfo['UserStory']['Id'], $userStoryInfo['Name'], self::STORY];
             }
         }
@@ -182,7 +196,7 @@ class TargetProcessHelper
         $taskInfo = $this->getTaskInfo($ticketId);
         if ($taskInfo) {
             if (isset($taskInfo['UserStory']['Id'])) {
-                $userStoryInfo = $this->getStoryInfo($taskInfo['UserStory']['Id']);
+                $userStoryInfo = $this->_getStoryInfo($taskInfo['UserStory']['Id']);
 
                 if (isset($taskInfo['UserStory']['Id'])) {
                     return [$taskInfo['UserStory']['Id'], $userStoryInfo['Name'], self::STORY];
@@ -190,7 +204,7 @@ class TargetProcessHelper
             }
         }
 
-        $userStory = $this->getStoryInfo($ticketId);
+        $userStory = $this->_getStoryInfo($ticketId);
         if (!isset($userStory['Id'])) {
             return [];
         }
@@ -199,7 +213,7 @@ class TargetProcessHelper
 
     /**
      * @param $addTicket
-     * @param null $tag
+     * @param null|string $tag
      * @return array
      */
     public function addTagsToTargetProcessTickets($addTicket, $tag = null)

@@ -32,7 +32,7 @@ class EmailHelper
 
     /**
      * @param $receiver
-     * @param array $content
+     * @param string[] $content
      * @param $tag
      */
     public function sendMail($receiver, $content, $tag)

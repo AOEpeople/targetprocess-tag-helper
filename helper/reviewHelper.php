@@ -26,6 +26,7 @@ class ReviewHelper
     {
         $assignedUsers = [];
         $assignedUsersFromUserStory = $userStory['AssignedUser']['Items'];
+
         foreach ($assignedUsersFromUserStory as $assignedUser) {
             $name = trim($assignedUser['FirstName'] . ' ' . $assignedUser['LastName']);
             if (in_array($name, $skipUsers)) {
@@ -110,7 +111,7 @@ class ReviewHelper
 
     /**
      * generates 1 array (row) each time
-     * @param array $entity
+     * @param string[][] $entity
      * @return string
      */
     protected function _generateOutputForEntity($entity)
@@ -122,7 +123,7 @@ class ReviewHelper
         $assignedUser = $this->getAssignedUsers($entity, $this->_skipUsers);
 
         $printArray = [
-            "[#{$entity['Id']}|{$this->configuration['url']}{$entity['Id']}]",
+            "[#{$entity['Id']}|{$this->configuration['targetprocess_url']}{$entity['Id']}]",
             str_replace("|", ", ", "{$entity['Name']}"),
             "{$colorMarkUp}",
             "{$entity['Effort']}",
@@ -136,20 +137,52 @@ class ReviewHelper
 
     //puts all rows together
     /**
-     * @param array $entities
+     * @param string[] $informationArray
+     * @param string[]|null $bugArray
      * @return string
      */
-    public function generateOutputForEntities(array $entities)
+    public function generateOutputForEntities(array $informationArray, array $bugArray = null)
     {
-        $this->_effort = 0;
+
         $content = "";
+        $count = 0;
 
-        $printArray = ["Link", "Title", "Status", "Effort", "Responsible", "Presentable", "Presentation Notes"];
-        $content = $content . $this->formatTableRow($printArray, true);
+        foreach ($informationArray as $sprint) {
 
-        foreach ($entities as $entity) {
-            $content = $content . $this->_generateOutputForEntity($entity);
+            $this->_effort = 0;
+
+            $information = $sprint['Information'];
+
+            $content = $content . "
+            || " . $sprint['Name'] . "||<br><br>
+            
+            ";
+
+            $printArray = ["Link", "Title", "Status", "Effort", "Responsible", "Presentable", "Presentation Notes"];
+            $content = $content . $this->formatTableRow($printArray, true);
+
+            foreach ($information as $entity)
+                $content = $content . $this->_generateOutputForEntity($entity);
+
+            if ($bugArray != null){
+                $sprint = $bugArray[$count++];
+
+                $information = $sprint['Information'];
+
+                if(count($information) != 0) {
+
+                    $content = $content . " || ||{color:#CD6600} *BUGS* {color}|| || || || || ||<br>";
+
+                    foreach ($information as $entity)
+                        $content = $content . $this->_generateOutputForEntity($entity);
+
+                }
+            }
+            $content = $content . "| | | |" . $this->_effort . "| | | |<br><br>
+                ";
         }
+
+
         return $content;
     }
 }
