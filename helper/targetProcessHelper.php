@@ -89,9 +89,9 @@ class TargetProcessHelper
         $informationSprint = [];
         $sortByPriority = [];
 
-        foreach ($teamIterations as $sprint) {
+        foreach ($teamIterations as $teamIteration) {
 
-            $teamIterationId = $sprint['Id'];
+            $teamIterationId = $teamIteration['Id'];
 
             if ($isUserStory)
                 $information = $this->_curlRequest("TeamIterations/{$teamIterationId}/UserStories/?skip=0&take=50&include=[Id,Name,Effort,EntityState,AssignedUser,Tasks,NumericPriority]");
@@ -116,7 +116,7 @@ class TargetProcessHelper
                     array_push($informationSprint, $info);
                 }
             }
-            $data['Name'] = $sprint['Name'];
+            $data['Name'] = $teamIteration['Name'];
             $data['Information'] = $informationSprint;
             array_push($informationArray, $data);
         }

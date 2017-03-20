@@ -2,7 +2,7 @@
 class GitTpHelper
 {
     /**
-     * @var array $_configuration
+     * @var string[] $_configuration
      */
     protected $_configuration = [];
 
