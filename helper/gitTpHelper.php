@@ -19,10 +19,12 @@ class GitTpHelper
 
             switch ($argv[1]) {
                 case 'getStartHash':
-                    $hashHelper->getStartHash($argv[2]);
+                    $url = isset($this->_configuration['server_url']) ? $this->_configuration['server_url'] : $argv[2];
+                    $hashHelper->getStartHash($url);
                     break;
                 case 'getEndHash':
-                    $hashHelper->getEndHash($argv[2]);
+                    $url = isset($this->_configuration['server_url']) ? $this->_configuration['server_url'] : $argv[2];
+                    $hashHelper->getEndHash($url);
                     break;
                 case 'createGitLog':
                     shell_exec('git -C ' . $argv[2] . ' log --pretty=oneline ' . file_get_contents('startHash.txt') . '...' . file_get_contents('endHash.txt') . ' > git.log');
