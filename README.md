@@ -7,7 +7,7 @@ A tool to collect the git commit messages from a git repo and add based on the g
 * scan for that task id / bug id if they are part of a story
   * For Tasks always add the story to the list
   * For Bugs if they are standalone add the bug and if not add the story to the list
-* provide that list
+* provide that list (with confluence markup)
 * Optional: Add tag to all of the collected stories / bugs
 
 ## How to run it

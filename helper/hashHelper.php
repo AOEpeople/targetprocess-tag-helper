@@ -7,18 +7,28 @@ class HashHelper
     {
     }
 
+    /**
+     * @param string $url
+     */
     public function getStartHash($url)
     {
         $currentHash = $this->getCurrentHash($url);
         $this->saveHash('startHash.txt', $currentHash);
     }
 
+    /**
+     * @param string $url
+     */
     public function getEndHash($url)
     {
         $currentHash = $this->getCurrentHash($url);
         $this->saveHash('endHash.txt', $currentHash);
     }
 
+    /**
+     * @param string $url
+     * @return string[]
+     */
     public function getCurrentHash($url)
     {
         $timeHash = time();

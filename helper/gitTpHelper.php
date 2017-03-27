@@ -1,6 +1,9 @@
 <?php
 class GitTpHelper
 {
+    /**
+     * @var string[] $_configuration
+     */
     protected $_configuration = [];
 
     public function __construct($configuration = [])
@@ -10,6 +13,9 @@ class GitTpHelper
         }
     }
 
+    /**
+     * @param string[] $argv
+     */
     public function run($argv)
     {
         if (isset($argv[1])) {
@@ -47,6 +53,23 @@ class GitTpHelper
                     if (is_string($sendMail)) {
                         $emailHelper->sendMail($sendMail, $tickets, $tag);
                     }
+                    break;
+                case 'saveToFile':
+                    $filename = isset($argv[2]) ? $argv[2] : null;
+                    $teamId = isset($argv[3]) ? $argv[3] : null;
+
+                    $targetProcessHelper = new TargetProcessHelper($this->_configuration);
+                    $teamIterations = $targetProcessHelper->getTeamIterationCollectionByTeamId($teamId);
+
+                    $userStories = $targetProcessHelper->getInformationForTeamIterationId($teamIterations, true);
+                    $bugs = $targetProcessHelper->getInformationForTeamIterationId($teamIterations, false);
+
+                    $reviewOutput = new ReviewHelper($this->_configuration);
+                    $userStories = $reviewOutput->generateOutputForEntities($userStories);
+                    $bugs = $reviewOutput->generateOutputForEntities($bugs);
+
+                    $fileHelper = new FileHelper();
+                    $fileHelper->writeFile($userStories . $bugs, $filename);
                     break;
             }
         }
