@@ -14,7 +14,7 @@ class ReviewHelper
     public function __construct($configuration)
     {
         $this->configuration = $configuration;
-        $this->_skipUsers = $configuration['skipUser'];
+        $this->_skipUsers = $configuration['skipUser']?:[];
     }
 
     /**

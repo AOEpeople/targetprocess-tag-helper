@@ -86,10 +86,11 @@ class TargetProcessHelper
     public function getInformationForTeamIterationId($teamIterations, $isUserStory)
     {
         $informationArray = [];
-        $informationSprint = [];
-        $sortByPriority = [];
 
         foreach ($teamIterations as $teamIteration) {
+
+            $informationSprint = [];
+            $sortByPriority = [];
 
             $teamIterationId = $teamIteration['Id'];
 
