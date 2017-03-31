@@ -13,7 +13,9 @@
       "helper/targetProcessHelper.php",
       "helper/emailHelper.php",
       "helper/hashHelper.php",
-      "helper/gitTpHelper.php"
+      "helper/gitTpHelper.php",
+      "helper/fileHelper.php",
+      "helper/reviewHelper.php"
     ]
   }
 }
