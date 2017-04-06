@@ -8,6 +8,7 @@ $configuration = [
     'logo_url' => '',
     'width' => [],
     'mail_header' => 'Hello,
-    Here the new changelog for the completed deployment.',
-    'skipUser' => []
+    Here is the new changelog for the completed deployment.',
+    'skipUser' => [],
+    'teamId' => ''
 ];

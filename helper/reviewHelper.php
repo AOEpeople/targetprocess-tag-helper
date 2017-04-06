@@ -114,11 +114,9 @@ class ReviewHelper
     {
         if(!$pdfHelper) {
             if ($topicRow)
-                return $tableRow = '|| {color:#CD6600} *' . implode('* {color} || {color:#CD6600} *', $array) . '* {color} ||<br>
-                ';
+                return $tableRow = '|| {color:#CD6600} *' . implode('* {color} || {color:#CD6600} *', $array) . '* {color} ||<br>';
             else
-                return $tableRow = '| ' . implode(' | ', $array) . ' |<br>
-                ';
+                return $tableRow = '| ' . implode(' | ', $array) . ' |<br>';
         } else {
             if ($topicRow) {
                 foreach ($array as $key => $value) {
@@ -191,9 +189,7 @@ class ReviewHelper
             $information = $sprint['Information'];
 
             $content = $content . "
-            || " . $sprint['Name'] . "||<br><br>
-            
-            ";
+            || " . $sprint['Name'] . "||<br><br>";
 
             $printArray = ["ID", "Title", "Status", "Effort", "Responsible", "Presentable", "Presentation Notes"];
             $content = $content . $this->formatTableRow($printArray, true, $pdfHelper);
@@ -210,8 +206,6 @@ class ReviewHelper
 
                     $printArray = ["", "BUGS", "", "", "", "", ""];
                     $content = $content . $this->formatTableRow($printArray, true, $pdfHelper);
-                    $content = $content . "<br>
-                        ";
 
                     foreach ($information as $entity)
                         $content = $content . $this->_generateOutputForEntity($entity, $pdfHelper);
@@ -220,8 +214,7 @@ class ReviewHelper
             }
             $printArray = ["", "", "", "{$this->_effort}", "", "", ""];
             $content = $content . $this->formatTableRow($printArray, false, $pdfHelper);
-            $content = $content . "<br><br>
-                ";
+            $content = $content . "<br><br>";
         }
 
 

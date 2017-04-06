@@ -65,11 +65,11 @@ class GitTpHelper
                     $bugs = $targetProcessHelper->getInformationForTeamIterationId($teamIterations, false);
 
                     $reviewOutput = new ReviewHelper($this->_configuration);
-                    $userStories = $reviewOutput->generateOutputForEntities($userStories);
-                    $bugs = $reviewOutput->generateOutputForEntities($bugs);
+                    $information = $reviewOutput->generateOutputForEntities($userStories, $bugs);
 
                     $fileHelper = new FileHelper();
-                    $fileHelper->writeFile($userStories . $bugs, $filename);
+                    $fileHelper->writeFile(str_replace("<br>", "
+                    ", $information), $filename);
                     break;
                 case 'saveToPdf':
                     $filename = isset($argv[2]) ? $argv[2] : null;
