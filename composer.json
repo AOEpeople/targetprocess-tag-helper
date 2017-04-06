@@ -2,7 +2,8 @@
   "name": "aoe/tp-helper",
   "minimum-stability": "dev",
   "require": {
-    "aws/aws-sdk-php": "*"
+    "aws/aws-sdk-php": "*",
+    "skurrier/pdflib": "*"
   },
   "config": {
     "bin-dir": "tools"
@@ -15,6 +16,7 @@
       "helper/hashHelper.php",
       "helper/gitTpHelper.php",
       "helper/fileHelper.php",
+      "helper/pdfHelper.php",
       "helper/reviewHelper.php"
     ]
   }

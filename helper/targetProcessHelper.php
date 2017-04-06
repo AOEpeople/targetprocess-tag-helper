@@ -80,6 +80,19 @@ class TargetProcessHelper
 
     /**
      * @param string[][] $teamIterations
+     * @param int $sprintId
+     * @return string[][]|null
+     */
+    public function extractSprintById($teamIterations, $sprintId)
+    {
+        foreach($teamIterations as $teamIteration => $value)
+            if ($value['Id'] == $sprintId)
+                return $teamIterations[$teamIteration];
+        return null;
+    }
+
+    /**
+     * @param string[][] $teamIterations
      * @param boolean $isUserStory
      * @return array
      */

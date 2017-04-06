@@ -54,3 +54,5 @@ Full Command: `php git-tp.php <git-commit-hash-from> <git-commit-hash-to> <tag-t
     * run `php git-tp.php sendChangelog <add-tag> <email-adresses>`
 * Save Output to txt:
     * run `php git-tp.php saveToFile <filename> <teamId>`
+* Save Sprint to Pdf:
+    * run `php git-tp.php saveToPdf <filename> <teamId> <sprintId>`

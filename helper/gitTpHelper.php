@@ -71,6 +71,27 @@ class GitTpHelper
                     $fileHelper = new FileHelper();
                     $fileHelper->writeFile($userStories . $bugs, $filename);
                     break;
+                case 'saveToPdf':
+                    $filename = isset($argv[2]) ? $argv[2] : null;
+                    $teamId = isset($argv[3]) ? $argv[3] : null;
+                    $sprintId = isset($argv[4]) ? $argv[4] : null;
+
+                    $targetProcessHelper = new TargetProcessHelper($this->_configuration);
+                    $teamIterations = $targetProcessHelper->getTeamIterationCollectionByTeamId($teamId);
+                    $teamIterationID[0] = $targetProcessHelper->extractSprintById($teamIterations, $sprintId);
+
+                    $userStories = $targetProcessHelper->getInformationForTeamIterationId($teamIterationID, true);
+                    $bugs = $targetProcessHelper->getInformationForTeamIterationId($teamIterationID, false);
+
+                    $pdfHelper = new \PDFLib\Test\pdfHelper();
+                    $pdfHelper->init($teamIterationID);
+
+                    $reviewOutput = new ReviewHelper($this->_configuration);
+                    $reviewOutput->generateOutputForEntities($userStories, $bugs, $pdfHelper);
+
+                    $fileHelper = new FileHelper();
+                    $fileHelper->writeFile($pdfHelper->Output(null, 'S'), $filename.'.pdf');
+
             }
         }
     }
