@@ -2,25 +2,14 @@
 
 require_once __DIR__ . '/output.php';
 
-class fileHelper extends Output
-{
-    /**
-     * @param string $content
-     * @param string $filename
-     */
-    public function writeFile($content, $filename)
-    {
-        file_put_contents($filename, $content);
-    }
+class ReviewPageHelper extends Output {
 
     /**
      * @param array[][] $contentArray
-     * @return string
      */
     public function printArray($contentArray)
     {
-        return str_replace("<br>", "
-                    ", $this->getPrintableArray($contentArray));
+        echo $this->getPrintableArray($contentArray);
     }
 
     /**

@@ -1,4 +1,5 @@
 <?php
+
 class GitTpHelper
 {
     /**
@@ -58,36 +59,55 @@ class GitTpHelper
                     $filename = isset($argv[2]) ? $argv[2] : null;
                     $teamId = isset($argv[3]) ? $argv[3] : null;
 
-                    $targetProcessHelper = new TargetProcessHelper($this->_configuration);
-                    $teamIterations = $targetProcessHelper->getTeamIterationCollectionByTeamId($teamId);
+                    $filter = "?where=(Team.Id eq '" . $teamId . "')";
+                    $filter = str_replace('#', '%23', $filter);
+                    $filter = str_replace(' ', '%20', $filter);
 
-                    $userStories = $targetProcessHelper->getInformationForTeamIterationId($teamIterations, true);
-                    $bugs = $targetProcessHelper->getInformationForTeamIterationId($teamIterations, false);
+                    $targetProcessHelper = new TargetProcessHelper($this->_configuration);
+                    $assignables = $targetProcessHelper->getAssignables($filter);
+
+                    $informationArray['Name'] = $teamId;
+
+                    foreach ($assignables as $key => $entity) {
+                        if ($entity['EntityType']['Name'] == 'UserStory')
+                            $informationArray['UserStories'][] = $entity;
+                        else
+                            $informationArray['Bugs'][] = $entity;
+                    }
 
                     $reviewOutput = new ReviewHelper($this->_configuration);
-                    $information = $reviewOutput->generateOutputForEntities($userStories, $bugs);
+                    $information = $reviewOutput->generateOutputForEntities($informationArray);
 
                     $fileHelper = new FileHelper();
-                    $fileHelper->writeFile(str_replace("<br>", "
-                    ", $information), $filename);
+                    $text = $fileHelper->printArray($information);
+                    $fileHelper->writeFile($text, $filename);
                     break;
                 case 'saveToPdf':
                     $filename = isset($argv[2]) ? $argv[2] : null;
                     $teamId = isset($argv[3]) ? $argv[3] : null;
                     $sprintId = isset($argv[4]) ? $argv[4] : null;
 
+                    $filter = "?where=(Team.Id eq '" . $teamId . "') and (TeamIteration.Id eq '" . $sprintId . "')";
+                    $filter = str_replace('#', '%23', $filter);
+                    $filter = str_replace(' ', '%20', $filter);
+
                     $targetProcessHelper = new TargetProcessHelper($this->_configuration);
-                    $teamIterations = $targetProcessHelper->getTeamIterationCollectionByTeamId($teamId);
-                    $teamIterationID[0] = $targetProcessHelper->extractSprintById($teamIterations, $sprintId);
+                    $assignables = $targetProcessHelper->getAssignables($filter);
 
-                    $userStories = $targetProcessHelper->getInformationForTeamIterationId($teamIterationID, true);
-                    $bugs = $targetProcessHelper->getInformationForTeamIterationId($teamIterationID, false);
+                    $informationArray['Name'] = $sprintId;
 
-                    $pdfHelper = new \PDFLib\Test\pdfHelper();
-                    $pdfHelper->init($teamIterationID);
+                    foreach ($assignables as $key => $entity) {
+                        if ($entity['EntityType']['Name'] == 'UserStory')
+                            $informationArray['UserStories'][] = $entity;
+                        else
+                            $informationArray['Bugs'][] = $entity;
+                    }
 
                     $reviewOutput = new ReviewHelper($this->_configuration);
-                    $reviewOutput->generateOutputForEntities($userStories, $bugs, $pdfHelper);
+                    $information = $reviewOutput->generateOutputForEntities($informationArray);
+
+                    $pdfHelper = new \PDFLib\Test\pdfHelper($this->_configuration);
+                    $pdfHelper->printArray($information);
 
                     $fileHelper = new FileHelper();
                     $fileHelper->writeFile($pdfHelper->Output(null, 'S'), $filename.'.pdf');

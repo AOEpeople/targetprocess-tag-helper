@@ -38,7 +38,6 @@ class TargetProcessHelper
 
         $entityUrl = $this->_targetProcessUrl . "api/v1/". $entityUrl;
 
-
         if ($data) {
             curl_setopt($ch, CURLOPT_POST, 1);
             curl_setopt($ch, CURLOPT_POSTFIELDS, json_encode($data));
@@ -75,6 +74,16 @@ class TargetProcessHelper
     public function getTeamIterationCollectionByTeamId($teamId)
     {
         $curlResponse = $this->_curlRequest("Teams/{$teamId}/TeamIterations?include=[Name,Id,Velocity]");
+        return $curlResponse['Items'] ?: [];
+    }
+
+    /**
+     * @param string $filter
+     * @return string[][]
+     */
+    public function getAssignables($filter = '')
+    {
+        $curlResponse = $this->_curlRequest("Assignables" . $filter . '&take=500&include=[Id,Name,Effort,EntityState,EntityType,AssignedUser]');
         return $curlResponse['Items'] ?: [];
     }
 

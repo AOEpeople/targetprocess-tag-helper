@@ -35,7 +35,10 @@ class ReviewHelper
     protected function getAssignedUsers($userStory, $skipUsers)
     {
         $assignedUsers = [];
-        $assignedUsersFromUserStory = $userStory['AssignedUser']['Items'];
+        if(isset($userStory['AssignedUser']))
+            $assignedUsersFromUserStory = $userStory['AssignedUser']['Items'];
+        else
+            return '';
 
         foreach ($assignedUsersFromUserStory as $assignedUser) {
             $name = trim($assignedUser['FirstName'] . ' ' . $assignedUser['LastName']);
@@ -48,176 +51,46 @@ class ReviewHelper
     }
 
     /**
-     * @param string $entityName
-     * @return string
-     */
-    protected function getStatusMarkup($entityName)
-    {
-        switch ($entityName) {
-            case 'Done':
-                $color = 'GREEN';
-                break;
-            case 'Approval':
-                $color = 'GREEN';
-                break;
-            case 'In Testing':
-                $color = 'BLUE';
-                break;
-            case 'Waiting for Feedback':
-                $color = 'YELLOW';
-                break;
-            case 'Awaiting Deployment':
-                $color = 'BLUE';
-                break;
-            case 'In Progress';
-                $color = 'YELLOW';
-                break;
-            case 'Open';
-                $color = 'RED';
-                break;
-            default:
-                $color = 'WHITE';
-                break;
-        }
-
-        $title = strtoupper($entityName);
-        return "{status:colour={$color}|title={$title}|subtle=false}";
-    }
-
-    /**
-     * @param string $entityName
-     * @return string
-     */
-    protected function getColor($entityName)
-    {
-        switch ($entityName) {
-            case 'Done':
-                return 'green';
-            case 'In Testing';
-                return 'yellow';
-            case 'In Progress';
-                return 'blue';
-            case 'Open';
-                return 'grey';
-        }
-    }
-
-
-    //formats rows into a confluence table
-    /**
-     * @param $array
-     * @param bool $topicRow
-     * @param \PDFLib\Test\pdfHelper $pdfHelper
-     * @return string
-     */
-    public function formatTableRow($array, $topicRow = false, $pdfHelper = null)
-    {
-        if(!$pdfHelper) {
-            if ($topicRow)
-                return $tableRow = '|| {color:#CD6600} *' . implode('* {color} || {color:#CD6600} *', $array) . '* {color} ||<br>';
-            else
-                return $tableRow = '| ' . implode(' | ', $array) . ' |<br>';
-        } else {
-            if ($topicRow) {
-                foreach ($array as $key => $value) {
-                    $pdfHelper->TableCell($value, $this->_width[$key] * $pdfHelper->getMaxWidth() / array_sum($this->_width), array("background" => "#d3d3d3"), "C", 1);
-                }
-                $pdfHelper->Ln();
-            } else {
-                foreach ($array as $key => $value) {
-                    $pdfHelper->TableCell($value, $this->_width[$key] * $pdfHelper->getMaxWidth() / array_sum($this->_width), array("size" => $pdfHelper->FontSizePt * 4 / 5), "C", 1);
-                }
-                $pdfHelper->Ln();
-            }
-            return null;
-        }
-    }
-
-    /**
      * generates 1 array (row) each time
      * @param string[][] $entity
-     * @param \PDFLib\Test\pdfHelper $pdfHelper
-     * @return string
+     * @return array[]
      */
-    protected function _generateOutputForEntity($entity, $pdfHelper)
+    protected function _generateOutputForEntity($entity)
     {
-        $content = "";
-
-        $colorMarkUp = $this->getStatusMarkup($entity['EntityState']['Name']);
         $this->_effort += $entity['Effort'];
         $assignedUser = $this->getAssignedUsers($entity, $this->_skipUsers);
-
-        if (!$pdfHelper)
-            $printArray = [
-                "[#{$entity['Id']}|{$this->_configuration['targetprocess_url']}{$entity['Id']}]",
-                str_replace("|", ", ", "{$entity['Name']}"),
-                "{$colorMarkUp}",
-                "{$entity['Effort']}",
-                "{$assignedUser}",
-                "",
-                ""
-            ];
-        else
-            $printArray = [
-                "{$entity['Id']}",
-                str_replace("|", ", ", "{$entity['Name']}"),
-                "{$entity['EntityState']['Name']}",
-                "{$entity['Effort']}",
-                "{$assignedUser}",
-                "",
-                ""
-            ];
-        $content = $content . $this->formatTableRow($printArray, false, $pdfHelper);
-        return $content;
+        return [false, $entity['Id'], str_replace("|", ", ", "{$entity['Name']}"), $entity['EntityState']['Name'], $entity['Effort'], $assignedUser, "", ""];
     }
 
-    //puts all rows together
     /**
+     * puts all rows together
      * @param string[] $informationArray
-     * @param string[]|null $bugArray
-     * @return string
+     * @return array[][]
      */
-    public function generateOutputForEntities(array $informationArray, array $bugArray = null, $pdfHelper = null)
+    public function generateOutputForEntities(array $informationArray)
     {
-        $content = "";
-        $count = 0;
+        $this->_effort = 0;
+        $Name = $informationArray['Name'];
 
-        foreach ($informationArray as $sprint) {
+        $printArray[$Name][] = [true, "ID", "Title", "Status", "Effort", "Responsible", "Presentable", "Presentation Notes"];
 
-            $this->_effort = 0;
+        $userStories = $informationArray['UserStories'];
 
-            $information = $sprint['Information'];
+        foreach ($userStories as $userStory)
+            $printArray[$Name][] = $this->_generateOutputForEntity($userStory);
 
-            $content = $content . "
-            || " . $sprint['Name'] . "||<br><br>";
+        if ($informationArray['Bugs'] != null){
 
-            $printArray = ["ID", "Title", "Status", "Effort", "Responsible", "Presentable", "Presentation Notes"];
-            $content = $content . $this->formatTableRow($printArray, true, $pdfHelper);
+            $bugs = $informationArray['Bugs'];
 
-            foreach ($information as $entity)
-                $content = $content . $this->_generateOutputForEntity($entity, $pdfHelper);
+            $printArray[$Name][] = [true, "", "BUGS", "", "", "", "", ""];
 
-            if ($bugArray != null){
-                $sprint = $bugArray[$count++];
+            foreach ($bugs as $bug)
+                $printArray[$Name][] = $this->_generateOutputForEntity($bug);
 
-                $information = $sprint['Information'];
-
-                if(count($information) != 0) {
-
-                    $printArray = ["", "BUGS", "", "", "", "", ""];
-                    $content = $content . $this->formatTableRow($printArray, true, $pdfHelper);
-
-                    foreach ($information as $entity)
-                        $content = $content . $this->_generateOutputForEntity($entity, $pdfHelper);
-
-                }
-            }
-            $printArray = ["", "", "", "{$this->_effort}", "", "", ""];
-            $content = $content . $this->formatTableRow($printArray, false, $pdfHelper);
-            $content = $content . "<br><br>";
         }
+        $printArray[$Name][] = [false, "", "", "", "{$this->_effort}", "", "", ""];
 
-
-        return $content;
+        return $printArray;
     }
 }
