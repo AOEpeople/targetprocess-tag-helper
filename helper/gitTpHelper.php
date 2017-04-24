@@ -1,4 +1,5 @@
 <?php
+
 class GitTpHelper
 {
     /**
@@ -58,19 +59,59 @@ class GitTpHelper
                     $filename = isset($argv[2]) ? $argv[2] : null;
                     $teamId = isset($argv[3]) ? $argv[3] : null;
 
-                    $targetProcessHelper = new TargetProcessHelper($this->_configuration);
-                    $teamIterations = $targetProcessHelper->getTeamIterationCollectionByTeamId($teamId);
+                    $filter = "?where=(Team.Id eq '" . $teamId . "')";
+                    $filter = str_replace('#', '%23', $filter);
+                    $filter = str_replace(' ', '%20', $filter);
 
-                    $userStories = $targetProcessHelper->getInformationForTeamIterationId($teamIterations, true);
-                    $bugs = $targetProcessHelper->getInformationForTeamIterationId($teamIterations, false);
+                    $targetProcessHelper = new TargetProcessHelper($this->_configuration);
+                    $assignables = $targetProcessHelper->getAssignables($filter);
+
+                    $informationArray['Name'] = $teamId;
+
+                    foreach ($assignables as $key => $entity) {
+                        if ($entity['EntityType']['Name'] == 'UserStory')
+                            $informationArray['UserStories'][] = $entity;
+                        else
+                            $informationArray['Bugs'][] = $entity;
+                    }
 
                     $reviewOutput = new ReviewHelper($this->_configuration);
-                    $userStories = $reviewOutput->generateOutputForEntities($userStories);
-                    $bugs = $reviewOutput->generateOutputForEntities($bugs);
+                    $information = $reviewOutput->generateOutputForEntities($informationArray);
 
                     $fileHelper = new FileHelper();
-                    $fileHelper->writeFile($userStories . $bugs, $filename);
+                    $text = $fileHelper->printArray($information);
+                    $fileHelper->writeFile($text, $filename);
                     break;
+                case 'saveToPdf':
+                    $filename = isset($argv[2]) ? $argv[2] : null;
+                    $teamId = isset($argv[3]) ? $argv[3] : null;
+                    $sprintId = isset($argv[4]) ? $argv[4] : null;
+
+                    $filter = "?where=(Team.Id eq '" . $teamId . "') and (TeamIteration.Id eq '" . $sprintId . "')";
+                    $filter = str_replace('#', '%23', $filter);
+                    $filter = str_replace(' ', '%20', $filter);
+
+                    $targetProcessHelper = new TargetProcessHelper($this->_configuration);
+                    $assignables = $targetProcessHelper->getAssignables($filter);
+
+                    $informationArray['Name'] = $sprintId;
+
+                    foreach ($assignables as $key => $entity) {
+                        if ($entity['EntityType']['Name'] == 'UserStory')
+                            $informationArray['UserStories'][] = $entity;
+                        else
+                            $informationArray['Bugs'][] = $entity;
+                    }
+
+                    $reviewOutput = new ReviewHelper($this->_configuration);
+                    $information = $reviewOutput->generateOutputForEntities($informationArray);
+
+                    $pdfHelper = new \PDFLib\Test\pdfHelper($this->_configuration);
+                    $pdfHelper->printArray($information);
+
+                    $fileHelper = new FileHelper();
+                    $fileHelper->writeFile($pdfHelper->Output(null, 'S'), $filename.'.pdf');
+
             }
         }
     }

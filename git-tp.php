@@ -11,6 +11,7 @@ require_once __DIR__ . '/helper/hashHelper.php';
 require_once __DIR__ . '/helper/gitTpHelper.php';
 require_once __DIR__ . '/helper/fileHelper.php';
 require_once __DIR__ . '/helper/reviewHelper.php';
+require_once __DIR__ . '/helper/pdfHelper.php';
 
 
 if (isset($argv[1]) && $argv[1] == 'help') {
@@ -20,6 +21,7 @@ Usage:  php git-tp.php getStartHash <version.txt url>
         php git-tp.php addTpTag <tag>
         php git-tp.php sendChangelog <tag> <email-address-separated-by-komma>
         php git-tp.php saveToFile <filename> <teamId>
+        php git-tp.php saveToPdf <filename> <teamId> <sprintId>
         
   help                          Prints this help
 
