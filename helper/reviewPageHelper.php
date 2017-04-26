@@ -13,6 +13,28 @@ class ReviewPageHelper extends Output {
     }
 
     /**
+     * @param array[][] $contentArray
+     */
+    public function printArrayAsHtml($contentArray)
+    {
+        $table = '';
+        foreach ($contentArray as $Name => $content) {
+            $table = $table . '<h1>' . $Name . '</h1><table border="1">';
+            foreach ($content as $row => $array) {
+                if (array_shift($array)) {
+                    $table = $table . '<tr><th>' . implode('</th><th>', $array) . '</th></tr>';
+                } else {
+                    $array[0] = '<a href="https://targetprocess.aoe.com/entity/' . $array[0] . '">' . $array[0];
+                    $array[2] = $this->getStatusMarkup($array[2]);
+                    $table = $table . '<tr><td>' . implode('</td><td>', $array) . '</td></tr>';
+                }
+            }
+            $table = $table . '</table><br><div class="clear" style="clear:both"></div><hr />';
+        }
+        echo $table;
+    }
+
+    /**
      * formats rows into a confluence table
      * @param array[][] $contentArray
      * @return string
