@@ -102,26 +102,24 @@ class TargetProcessHelper
 
     /**
      * @param string[][] $teamIterations
-     * @param boolean $isUserStory
      * @return array
      */
-    public function getInformationForTeamIterationId($teamIterations, $isUserStory)
+    public function getInformationForTeamIterationId($teamIterations)
     {
         $informationArray = [];
 
         foreach ($teamIterations as $teamIteration) {
 
-            $informationSprint = [];
             $sortByPriority = [];
+            $storyInfo = [];
+            $bugInfo = [];
 
             $teamIterationId = $teamIteration['Id'];
 
-            if ($isUserStory)
-                $information = $this->_curlRequest("TeamIterations/{$teamIterationId}/UserStories/?skip=0&take=50&include=[Id,Name,Effort,EntityState,AssignedUser,Tasks,NumericPriority]");
-            else
-                $information = $this->_curlRequest("TeamIterations/{$teamIterationId}/Bugs/?take=50");
+            $userStories = $this->_curlRequest("TeamIterations/{$teamIterationId}/UserStories/?skip=0&take=50&include=[Id,Name,Effort,EntityState,AssignedUser,Tasks,NumericPriority]");
+            $bugs = $this->_curlRequest("TeamIterations/{$teamIterationId}/Bugs/?take=50");
 
-            foreach ($information['Items'] as $info) {
+            foreach ($userStories['Items'] as $info) {
                 $sortByPriority[$info['NumericPriority']][] = $info;
             }
 
@@ -129,19 +127,32 @@ class TargetProcessHelper
 
             foreach ($sortByPriority as $information) {
                 foreach ($information as $info) {
-                    if (!$isUserStory) {
-                        $info = $this->_getBugInfo($info['Id']);
-                        if ($info['UserStory'] != null)
-                            continue;
-                    } else
-                        $info = $this->_getStoryInfo($info['Id']);
-
-                    array_push($informationSprint, $info);
+                    $info = $this->_getStoryInfo($info['Id']);
+                    array_push($storyInfo, $info);
                 }
             }
+
+            $data['UserStories'] = $storyInfo;
+
+            foreach ($bugs['Items'] as $info) {
+                $sortByPriority[$info['NumericPriority']][] = $info;
+            }
+
+            ksort($sortByPriority);
+
+            foreach ($sortByPriority as $information) {
+                foreach ($information as $info) {
+                    $info = $this->_getBugInfo($info['Id']);
+                    if (!isset($info['UserStory']))
+                        continue;
+                    array_push($bugInfo, $info);
+                }
+            }
+
+            $data['Bugs'] = $bugInfo;
+
             $data['Name'] = $teamIteration['Name'];
-            $data['Information'] = $informationSprint;
-            array_push($informationArray, $data);
+            $informationArray[$data['Name']] = $data;
         }
         return $informationArray;
     }
