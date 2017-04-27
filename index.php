@@ -54,10 +54,13 @@ if (isset($_POST['group'])) {
     $informationArray['Name'] = $from . ' to ' . $to;
 
     foreach ($assignables as $key => $entity) {
-        if ($entity['EntityType']['Name'] == 'UserStory')
-            $informationArray['UserStories'][] = $entity;
-        else
-            $informationArray['Bugs'][] = $entity;
+        if ($configuration['stateFilter'] == [] || in_array($entity['EntityState']['Name'], $configuration['stateFilter'])) {
+            if ($entity['EntityType']['Name'] == 'UserStory' || $entity['EntityType']['Name'] == 'Request') {
+                $informationArray['UserStories'][] = $entity;
+            } else {
+                $informationArray['Bugs'][] = $entity;
+            }
+        }
     }
 
     //formats the information into a list

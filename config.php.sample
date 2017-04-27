@@ -10,5 +10,8 @@ $configuration = [
     'mail_header' => 'Hello,
     Here is the new changelog for the completed deployment.',
     'skipUser' => [],
-    'teamId' => ''
+    'teamId' => '',
+    'defaultTeamName' => '',
+    'defaultProjectName' => '',
+    'stateFilter' => []
 ];
