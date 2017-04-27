@@ -62,7 +62,9 @@ class TargetProcessHelper
         $response = curl_exec($ch);
         curl_close($ch);
 
-        return json_decode($response, true);
+        $decodedResponse = json_decode($response, true);
+
+        return is_array($decodedResponse) ? $decodedResponse : [];
     }
 
     /**
@@ -74,7 +76,7 @@ class TargetProcessHelper
     public function getTeamIterationCollectionByTeamId($teamId)
     {
         $curlResponse = $this->_curlRequest("Teams/{$teamId}/TeamIterations?include=[Name,Id,Velocity]");
-        return $curlResponse['Items'] ?: [];
+        return isset($curlResponse['Items']) ? $curlResponse['Iteams'] : [];
     }
 
     /**
@@ -84,7 +86,7 @@ class TargetProcessHelper
     public function getAssignables($filter = '')
     {
         $curlResponse = $this->_curlRequest("Assignables" . $filter . '&take=500&include=[Id,Name,Effort,EntityState,EntityType,AssignedUser]');
-        return $curlResponse['Items'] ?: [];
+        return isset($curlResponse['Items']) ? $curlResponse['Items'] : [];
     }
 
     /**

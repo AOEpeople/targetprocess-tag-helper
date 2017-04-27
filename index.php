@@ -1,5 +1,7 @@
 <?php
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/helper/targetProcessHelper.php';
 require_once __DIR__ . '/helper/reviewHelper.php';
@@ -19,75 +21,55 @@ $nextMonth = $date['year'] . '-' .  (string)($date['mon'] %12 + 1) . '-' . '1';
             <form action="index.php" method="post">
 <?php
 
-if (isset($_POST["team"])) {
+$team = isset($_POST['team']) ? $_POST['team'] : isset($configuration['defaultTeamName']) ? $configuration['defaultTeamName'] : "";
+$project = isset($_POST['project']) ? $_POST['project'] : isset($configuration['defaultProjectName']) ? $configuration['defaultProjectName'] : "";
+$from = isset($_POST['from']) ? $_POST['from'] : $thisMonth;
+$to = isset($_POST['to']) ? $_POST['to'] : $nextMonth;
+$release = !isset($_POST['group']) || $_POST['group'] == 'Release' ? true : false;
+$forFilter = $release ? 'Release' : 'TeamIteration';
 
-    ?>
-                Team: <input type="text" name="team" value="<?php echo $_POST['team'] ?>"><br>
-                Project: <input type="text" name="project" value="<?php echo $_POST['project'] ?>"><br>
-                From: <input type="text" name="from" value="<?php echo $_POST['from'] ?>"><br>
-                To: <input type="text" name="to" value="<?php echo $_POST['to'] ?>"><br>
+?>
+        Team: <input type="text" name="team" value="<?php echo $team ?>"><br>
+        Project: <input type="text" name="project" value="<?php echo $project ?>"><br>
+        From: <input type="text" name="from" value="<?php echo $from ?>"><br>
+        To: <input type="text" name="to" value="<?php echo $to ?>"><br>
+        Releases <input type="radio" name="group" value="Release" <?= $release ? "checked" : "" ?>><br>
+        Team Iterations <input type="radio" name="group" value="TeamIteration" <?= !$release ? "checked" : "" ?>><br>
+    <input type="submit">
+</form>
     <?php
-    if ($_POST['group'] == 'Release') {
-    ?>
-                Releases <input type="radio" name="group" value="Release" checked><br>
-                Team Iterations <input type="radio" name="group" value="TeamIteration"><br>
-        <?php
-    } else {
-        ?>
-                Releases <input type="radio" name="group" value="Release"><br>
-                Team Iterations <input type="radio" name="group" value="TeamIteration" checked><br>
-        <?php
+
+$filter = "";
+$assignables = [];
+
+if (isset($_POST['group'])) {
+    $filter = "?where=(Team.Name eq '" . $team . "') and (Project.Name eq '" . $project . "') and (" . $forFilter . ".StartDate gte '" . $from . "') and (" . $forFilter . ".EndDate lte '" . $to . "')";
+
+    $filter = str_replace('#', '%23', $filter);
+    $filter = str_replace(' ', '%20', $filter);
+    //gets Assignables
+    $targetProcessHelper = new TargetProcessHelper($configuration);
+    $assignables = $targetProcessHelper->getAssignables($filter);
+
+    $informationArray['Name'] = $from . ' to ' . $to;
+
+    foreach ($assignables as $key => $entity) {
+        if ($entity['EntityType']['Name'] == 'UserStory')
+            $informationArray['UserStories'][] = $entity;
+        else
+            $informationArray['Bugs'][] = $entity;
     }
-    ?>
-                <input type="submit">
-            </form>
-        </body>
-    </html>
-    <?php
-} else { // DEFAULT
-    ?>
-    <html>
-        <body>
-            <form action="index.php" method="post">
-                Team: <input type="text" name="team" value="<?php echo "Stockmann" ?>"><br>
-                Project: <input type="text" name="project" value="<?php echo "Stockmann eCom #4" ?>"><br>
-                From: <input type="text" name="from" value="<?php echo $thisMonth ?>"><br>
-                To: <input type="text" name="to" value="<?php echo $nextMonth ?>"><br>
-                Releases <input type="radio" name="group" value="Release" checked><br>
-                Team Iterations <input type="radio" name="group" value="TeamIteration"><br>
-                <input type="submit">
-            </form>
-        </body>
-    </html>
-    <?php
+
+    //formats the information into a list
+    $reviewOutput = new ReviewHelper($configuration);
+    $information = $reviewOutput->generateOutputForEntities($informationArray);
+
+    //direct output
+    $pagehelper = new ReviewPageHelper();
+    $pagehelper->printArray($information);
+
 }
 
-$team = $_POST['team'];
-$project = $_POST['project'];
-$from = $_POST['from'];
-$to = $_POST['to'];
 
-$filter = "?where=(Team.Name eq '" . $team . "') and (Project.Name eq '" . $project . "') and (" . $_POST['group'] . ".StartDate gte '" . $from . "') and (" . $_POST['group'] . ".EndDate lte '" . $to . "')";
-$filter = str_replace('#', '%23', $filter);
-$filter = str_replace(' ', '%20', $filter);
 
-//gets Assignables
-$targetProcessHelper = new TargetProcessHelper($configuration);
-$assignables = $targetProcessHelper->getAssignables($filter);
 
-$informationArray['Name'] = $from . ' to ' . $to;
-
-foreach ($assignables as $key => $entity) {
-    if ($entity['EntityType']['Name'] == 'UserStory')
-        $informationArray['UserStories'][] = $entity;
-    else
-        $informationArray['Bugs'][] = $entity;
-}
-
-//formats the information into a list
-$reviewOutput = new ReviewHelper($configuration);
-$information = $reviewOutput->generateOutputForEntities($informationArray);
-
-//direct output
-$pagehelper = new ReviewPageHelper();
-$pagehelper->printArray($information);

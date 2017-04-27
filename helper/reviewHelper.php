@@ -22,8 +22,8 @@ class ReviewHelper
     public function __construct($configuration)
     {
         $this->_configuration = $configuration;
-        $this->_skipUsers = $configuration['skipUser']?:[];
-        $this->_width = $configuration['width']?:[3, 7, 3, 2, 5, 5, 5];
+        $this->_skipUsers = isset($configuration['skipUser']) ? $configuration['skipUser'] : [];
+        $this->_width = isset($configuration['width']) ? $configuration['width'] : [3, 7, 3, 2, 5, 5, 5];
         $this->_effort = 0;
     }
 
@@ -74,12 +74,12 @@ class ReviewHelper
 
         $printArray[$Name][] = [true, "ID", "Title", "Status", "Effort", "Responsible", "Presentable", "Presentation Notes"];
 
-        $userStories = $informationArray['UserStories'];
+        $userStories = isset($informationArray['UserStories']) ? $informationArray['UserStories'] : [];
 
         foreach ($userStories as $userStory)
             $printArray[$Name][] = $this->_generateOutputForEntity($userStory);
 
-        if ($informationArray['Bugs'] != null){
+        if (isset($informationArray['Bugs']) && $informationArray['Bugs'] != null){
 
             $bugs = $informationArray['Bugs'];
 
