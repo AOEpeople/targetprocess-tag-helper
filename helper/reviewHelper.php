@@ -59,7 +59,11 @@ class ReviewHelper
     {
         $this->_effort += $entity['Effort'];
         $assignedUser = $this->getAssignedUsers($entity, $this->_skipUsers);
-        return [false, $entity['Id'], str_replace("|", ", ", "{$entity['Name']}"), $entity['EntityState']['Name'], $entity['Effort'], $assignedUser, "", ""];
+        $printArray = [false, $entity['Id'], $entity['Name'], $entity['EntityState']['Name'], $entity['Effort'], $assignedUser, "", ""];
+        foreach ($printArray as $key => $value) {
+            $printArray[$key] = addcslashes($value, "*_?-+^~{}|");
+        }
+        return $printArray;
     }
 
     /**
@@ -83,7 +87,7 @@ class ReviewHelper
 
             $bugs = $informationArray['Bugs'];
 
-            $printArray[$Name][] = [true, "", "BUGS", "", "", "", "", ""];
+            $printArray[$Name][] = [false, "", "BUGS", "", "", "", "", ""];
 
             foreach ($bugs as $bug)
                 $printArray[$Name][] = $this->_generateOutputForEntity($bug);

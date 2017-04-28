@@ -4,6 +4,12 @@ require_once __DIR__ . '/output.php';
 
 class ReviewPageHelper extends Output {
 
+    protected $_configuration;
+
+    public function __construct ($configuration) {
+        $this->_configuration = $configuration;
+    }
+
     /**
      * @param array[][] $contentArray
      */
@@ -24,7 +30,7 @@ class ReviewPageHelper extends Output {
                 if (array_shift($array)) {
                     $table = $table . '<tr><th>' . implode('</th><th>', $array) . '</th></tr>';
                 } else {
-                    $array[0] = '<a href="https://targetprocess.aoe.com/entity/' . $array[0] . '">' . $array[0];
+                    $array[0] = '<a href="' . $this->_configuration['targetprocess_url'] . 'entity/' . $array[0] . '">' . $array[0];
                     $array[2] = $this->getStatusMarkup($array[2]);
                     $table = $table . '<tr><td>' . implode('</td><td>', $array) . '</td></tr>';
                 }
@@ -48,6 +54,8 @@ class ReviewPageHelper extends Output {
                 if (array_shift($array)) {
                     $table = $table . '|| {color:#CD6600} *' . implode('* {color} || {color:#CD6600} *', $array) . '* {color} ||<br>';
                 } else {
+                    $array[0] = $array[0] == "" ? "" : "[{$array[0]}|{$this->_configuration['targetprocess_url']}entity/{$array[0]}]";
+                    $array[1] = $array[1] == "BUGS" ? "{color:#CD6600} *BUGS* {color}" : $array[1];
                     $array[2] = $this->getStatusMarkup($array[2]);
                     $table = $table . '| ' . implode(' | ', $array) . ' |<br>';
                 }

@@ -12,26 +12,17 @@ abstract class Output
     protected function getStatusMarkup($entityName)
     {
         switch ($entityName) {
-            case 'Done':
+            case 'Done by AOE':
                 $color = 'GREEN';
                 break;
-            case 'Approval':
-                $color = 'GREEN';
-                break;
-            case 'In Testing':
-                $color = 'BLUE';
-                break;
-            case 'Waiting for Feedback':
+            case 'ON QA':
                 $color = 'YELLOW';
                 break;
-            case 'Awaiting Deployment':
-                $color = 'BLUE';
+            case 'ON PRD':
+                $color = 'RED';
                 break;
             case 'In Progress';
-                $color = 'YELLOW';
-                break;
-            case 'Open';
-                $color = 'RED';
+                $color = 'BLUE';
                 break;
             case '';
                 return "";

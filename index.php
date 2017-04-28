@@ -1,3 +1,5 @@
+<meta charset="UTF-8">
+
 <?php
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -57,7 +59,8 @@ if (isset($_POST['group'])) {
         if ($configuration['stateFilter'] == [] || in_array($entity['EntityState']['Name'], $configuration['stateFilter'])) {
             if ($entity['EntityType']['Name'] == 'UserStory' || $entity['EntityType']['Name'] == 'Request') {
                 $informationArray['UserStories'][] = $entity;
-            } else {
+            }
+            if ($entity['EntityType']['Name'] == 'Bug') {
                 $informationArray['Bugs'][] = $entity;
             }
         }
@@ -68,7 +71,7 @@ if (isset($_POST['group'])) {
     $information = $reviewOutput->generateOutputForEntities($informationArray);
 
     //direct output
-    $pagehelper = new ReviewPageHelper();
+    $pagehelper = new ReviewPageHelper($configuration);
     $pagehelper->printArray($information);
 
 }
