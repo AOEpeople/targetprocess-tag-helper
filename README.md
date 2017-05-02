@@ -24,9 +24,14 @@ $configuration = [
     'targetprocess_password' => '',
     'aws_ses_sender_address' => '',
     'logo_url' => '',
+    'width' => [],
     'mail_header' => 'Hello,
-    Here the new changelog for the completed deployment.
-    If you find issues please create a new Bug or ping us in channel.'
+    Here is the new changelog for the completed deployment.',
+    'skipUser' => [],
+    'teamId' => '',
+    'defaultTeamName' => '',
+    'defaultProjectName' => '',
+    'stateFilter' => []
 ];
 ```
 

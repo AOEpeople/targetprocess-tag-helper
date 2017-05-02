@@ -56,7 +56,7 @@ if (isset($_POST['group'])) {
     $informationArray['Name'] = $from . ' to ' . $to;
 
     foreach ($assignables as $key => $entity) {
-        if ($configuration['stateFilter'] == [] || in_array($entity['EntityState']['Name'], $configuration['stateFilter'])) {
+        if ($configuration['stateFilter'] == [] || in_array($entity['EntityState']['Name'], $configuration['stateFilter']) || array_key_exists($entity['EntityState']['Name'], $configuration['stateFilter'])) {
             if ($entity['EntityType']['Name'] == 'UserStory' || $entity['EntityType']['Name'] == 'Request') {
                 $informationArray['UserStories'][] = $entity;
             }

@@ -4,12 +4,6 @@ require_once __DIR__ . '/output.php';
 
 class ReviewPageHelper extends Output {
 
-    protected $_configuration;
-
-    public function __construct ($configuration) {
-        $this->_configuration = $configuration;
-    }
-
     /**
      * @param array[][] $contentArray
      */
@@ -56,7 +50,7 @@ class ReviewPageHelper extends Output {
                 } else {
                     $array[0] = $array[0] == "" ? "" : "[{$array[0]}|{$this->_configuration['targetprocess_url']}entity/{$array[0]}]";
                     $array[1] = $array[1] == "BUGS" ? "{color:#CD6600} *BUGS* {color}" : $array[1];
-                    $array[2] = $this->getStatusMarkup($array[2]);
+                    $array[2] = $array[2] != "" ? $this->getStatusMarkup($array[2]) : "";
                     $table = $table . '| ' . implode(' | ', $array) . ' |<br>';
                 }
             }
