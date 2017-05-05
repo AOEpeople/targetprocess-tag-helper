@@ -23,8 +23,8 @@ $nextMonth = $date['year'] . '-' .  (string)($date['mon'] %12 + 1) . '-' . '1';
             <form action="index.php" method="post">
 <?php
 
-$team = isset($_POST['team']) ? $_POST['team'] : isset($configuration['defaultTeamName']) ? $configuration['defaultTeamName'] : "";
-$project = isset($_POST['project']) ? $_POST['project'] : isset($configuration['defaultProjectName']) ? $configuration['defaultProjectName'] : "";
+$team = isset($_POST['team']) ? $_POST['team'] : (isset($configuration['defaultTeamName']) ? $configuration['defaultTeamName'] : "");
+$project = isset($_POST['project']) ? $_POST['project'] : (isset($configuration['defaultProjectName']) ? $configuration['defaultProjectName'] : "");
 $from = isset($_POST['from']) ? $_POST['from'] : $thisMonth;
 $to = isset($_POST['to']) ? $_POST['to'] : $nextMonth;
 $release = !isset($_POST['group']) || $_POST['group'] == 'Release' ? true : false;
