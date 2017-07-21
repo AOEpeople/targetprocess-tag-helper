@@ -76,7 +76,7 @@ class TargetProcessHelper
     public function getTeamIterationCollectionByTeamId($teamId)
     {
         $curlResponse = $this->_curlRequest("Teams/{$teamId}/TeamIterations?include=[Name,Id,Velocity]");
-        return isset($curlResponse['Items']) ? $curlResponse['Iteams'] : [];
+        return isset($curlResponse['Items']) ? $curlResponse['Items'] : [];
     }
 
     /**

@@ -1,3 +1,5 @@
+<meta charset="UTF-8">
+
 <?php
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
@@ -21,8 +23,8 @@ $nextMonth = $date['year'] . '-' .  (string)($date['mon'] %12 + 1) . '-' . '1';
             <form action="index.php" method="post">
 <?php
 
-$team = isset($_POST['team']) ? $_POST['team'] : isset($configuration['defaultTeamName']) ? $configuration['defaultTeamName'] : "";
-$project = isset($_POST['project']) ? $_POST['project'] : isset($configuration['defaultProjectName']) ? $configuration['defaultProjectName'] : "";
+$team = isset($_POST['team']) ? $_POST['team'] : (isset($configuration['defaultTeamName']) ? $configuration['defaultTeamName'] : "");
+$project = isset($_POST['project']) ? $_POST['project'] : (isset($configuration['defaultProjectName']) ? $configuration['defaultProjectName'] : "");
 $from = isset($_POST['from']) ? $_POST['from'] : $thisMonth;
 $to = isset($_POST['to']) ? $_POST['to'] : $nextMonth;
 $release = !isset($_POST['group']) || $_POST['group'] == 'Release' ? true : false;
@@ -54,10 +56,11 @@ if (isset($_POST['group'])) {
     $informationArray['Name'] = $from . ' to ' . $to;
 
     foreach ($assignables as $key => $entity) {
-        if ($configuration['stateFilter'] == [] || in_array($entity['EntityState']['Name'], $configuration['stateFilter'])) {
+        if ($configuration['stateFilter'] == [] || in_array($entity['EntityState']['Name'], $configuration['stateFilter']) || array_key_exists($entity['EntityState']['Name'], $configuration['stateFilter'])) {
             if ($entity['EntityType']['Name'] == 'UserStory' || $entity['EntityType']['Name'] == 'Request') {
                 $informationArray['UserStories'][] = $entity;
-            } else {
+            }
+            if ($entity['EntityType']['Name'] == 'Bug') {
                 $informationArray['Bugs'][] = $entity;
             }
         }
@@ -68,7 +71,7 @@ if (isset($_POST['group'])) {
     $information = $reviewOutput->generateOutputForEntities($informationArray);
 
     //direct output
-    $pagehelper = new ReviewPageHelper();
+    $pagehelper = new ReviewPageHelper($configuration);
     $pagehelper->printArray($information);
 
 }

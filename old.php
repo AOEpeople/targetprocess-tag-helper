@@ -1,11 +1,13 @@
 <?php
-
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
 require_once __DIR__ . '/config.php';
 require_once __DIR__ . '/helper/targetProcessHelper.php';
 require_once __DIR__ . '/helper/reviewHelper.php';
 require_once __DIR__ . '/helper/reviewPageHelper.php';
 
-$teamId = $_GET['teamId']?: $configuration['teamId'];
+$teamId = isset($_GET['teamId']) ? $_GET['teamId'] : $configuration['teamId'];
 
 $targetProcessHelper = new TargetProcessHelper($configuration);
 $teamIterations = $targetProcessHelper->getTeamIterationCollectionByTeamId($teamId);
@@ -17,7 +19,7 @@ $reviewOutput = new ReviewHelper($configuration);
 foreach ($informationArray as $sprint => $info) {
     $information = $reviewOutput->generateOutputForEntities($info);
 
-//direct output
-    $pagehelper = new ReviewPageHelper();
+    //direct output
+    $pagehelper = new ReviewPageHelper($configuration);
     $pagehelper->printArrayAsHtml($information);
 }
