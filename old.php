@@ -8,9 +8,18 @@ require_once __DIR__ . '/helper/reviewHelper.php';
 require_once __DIR__ . '/helper/reviewPageHelper.php';
 
 $teamId = isset($_GET['teamId']) ? $_GET['teamId'] : $configuration['teamId'];
+$sprintId = isset($_GET['sprintId']) ? $_GET['sprintId'] : "";
+$sprintName = isset($_GET['sprintName']) ? $_GET['sprintName'] : "";
+
 
 $targetProcessHelper = new TargetProcessHelper($configuration);
-$teamIterations = $targetProcessHelper->getTeamIterationCollectionByTeamId($teamId);
+
+if ($sprintId) {
+    $teamIterations = [['Id' => $sprintId, 'Name' => $sprintName]];
+} else {
+    $teamIterations = $targetProcessHelper->getTeamIterationCollectionByTeamId($teamId);
+}
+
 $informationArray = $targetProcessHelper->getInformationForTeamIterationId($teamIterations);
 
 //formats the information into a list
@@ -21,5 +30,5 @@ foreach ($informationArray as $sprint => $info) {
 
     //direct output
     $pagehelper = new ReviewPageHelper($configuration);
-    $pagehelper->printArrayAsHtml($information);
+    $pagehelper->printArray($information);
 }
